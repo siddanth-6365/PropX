@@ -39,8 +39,10 @@ function App() {
       MarketplaceABI.abi,
       signer
     );
+    // console.log("marketplace ic:", marketplace.itemCount());
     setMarketplace(marketplace);
     const nft = new ethers.Contract(NFTAddress.address, NFTABI.abi, signer);
+    // console.log("nft ic:",await nft.tokenCount());
     setNFT(nft);
     setLoading(false);
   };

@@ -1,36 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { Spinner } from "react-bootstrap";
 import { Row, Col, Card, Button } from "react-bootstrap";
-import { ethers } from "ethers"
+import { ethers } from "ethers";
 
 export const Home = ({ marketplace, nft }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadMarketplaceItems = async () => {
-    const itemCount = await marketplace.itemCount();
-    let tempitems = [];
-    for (let i = 1; i <= itemCount; i++) {
-      const item = await marketplace.items(i);
-      if (!item.sold) {
-        // get uri's url from nft contract
-        const uri = await nft.tokenURI(item.tokenId);
-        // get metadata from uri
-        const res = await fetch(uri);
-        const metadata = await res.json();
-        const totalPrice = await marketplace.getTotalPrice(item.itemId);
-        tempitems.push({
-          totalPrice,
-          itemId: item.itemId,
-          seller: item.seller,
-          name: metadata.name,
-          description: metadata.description,
-          image: metadata.image,
-        });
+    console.log("called loadMarketplaceItems");
+    try {
+      const itemCount = await marketplace.itemCount();
+      console.log("itemCount", itemCount);
+      let tempitems = [];
+      for (let i = 1; i <= itemCount; i++) {
+        const item = await marketplace.items(i);
+        if (!item.sold) {
+          // get uri's url from nft contract
+          const uri = await nft.tokenURI(item.tokenId);
+          // get metadata from uri
+          const res = await fetch(uri);
+          const metadata = await res.json();
+          const totalPrice = await marketplace.getTotalPrice(item.itemId);
+          tempitems.push({
+            totalPrice,
+            itemId: item.itemId,
+            seller: item.seller,
+            name: metadata.name,
+            description: metadata.description,
+            image: metadata.image,
+          });
+        }
       }
+      console.log(tempitems);
+      setItems(tempitems);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error in loadMarketplaceItems", error);
     }
-    setItems(tempitems);
-    setLoading(false);
   };
 
   const buyMarketItem = async (item) => {
